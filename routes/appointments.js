@@ -23,7 +23,7 @@ router.get('/my', verifyToken, verifyRole([1]), async (req, res) => {
             `SELECT a.*, u.first_name, u.last_name, p.specialisation
             FROM appointments a
             JOIN users u ON a.provider_id = u.user_id
-            JOIN provider_profiles p ON u.user_id = p.provider_id
+            LEFT JOIN provider_profiles p ON u.user_id = p.provider_id
             WHERE a.patient_id = $1
             ORDER BY a.appointment_datetime DESC`,
             [req.user.user_id]
