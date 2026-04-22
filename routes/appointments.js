@@ -76,4 +76,19 @@ router.put('/:id/confirm', verifyToken, verifyRole([2]), async (req, res) => {
     }
 });
 
+router.put('/:id/reschedule', verifyToken, verifyRole([1]), async (req, res) => {
+    const { appointment_datetime } = req.body;
+    try {
+        const result = await pool.query(
+            `UPDATE appointments SET appointment_datetime = $1, status = 'Pending'
+            WHERE appointment_id = $2 AND patient_id = $3 RETURNING *`,
+            [appointment_datetime, req.params.id, req.user.user_id]
+        );
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Appointment not found' });
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
